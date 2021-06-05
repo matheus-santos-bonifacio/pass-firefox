@@ -1,0 +1,3 @@
+[submodule "tools-pass-firefox"]
+	path = tools-pass-firefox
+	url = https://github.com/caneladeouro/tools-pass-firefox
