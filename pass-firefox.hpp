@@ -13,6 +13,7 @@
 #include <gtkmm/linkbutton.h>
 #include <gtkmm/messagedialog.h>
 #include <iostream>
+#include "tools-pass-firefox/tools-pass-firefox.hpp"
 
 class PassFirefox : public Gtk::Window
 {

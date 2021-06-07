@@ -1,5 +1,8 @@
 #include "pass-firefox.hpp"
 #include "gtkmm/enums.h"
+#include "gtkmm/messagedialog.h"
+#include "sigc++/functors/mem_fun.h"
+#include <iostream>
 
 PassFirefox::PassFirefox() : m_box_1{Gtk::Orientation::ORIENTATION_VERTICAL},
                              m_box_2{Gtk::Orientation::ORIENTATION_VERTICAL},
@@ -12,6 +15,45 @@ PassFirefox::PassFirefox() : m_box_1{Gtk::Orientation::ORIENTATION_VERTICAL},
   draw_widgets();
   show_all_children();
 };
+
+void PassFirefox::on_button_exporter() {
+  if ( m_entry_1.get_text_length() == 0 || m_entry_2.get_text_length() == 0 ) {
+    Gtk::MessageDialog empty( "Export with file GPG", false, Gtk::MESSAGE_WARNING );
+    empty.set_title( "Fail in export" );
+    empty.set_secondary_text( "Need fill all fields." );
+    empty.run();
+
+    return;
+  }
+
+  if ( m_entry_1.get_text() != m_entry_2.get_text() ) {
+    Gtk::MessageDialog empty( "Export with file GPG", false, Gtk::MESSAGE_WARNING );
+    empty.set_title( "Fail in export" );
+    empty.set_secondary_text( "password need to be the same." );
+    empty.run();
+
+    return;
+  }
+
+  // Intancie the ToolsPassFirefox class
+  ToolsPassFirefox tpf;
+  if (tpf.export_file( m_entry_1.get_text() )) {
+    m_entry_1.set_text( "" );
+    m_entry_2.set_text( "" );
+
+    m_label_1.set_text( "\u2714 File saved with sucess." );
+    m_label_5.set_text( "Salvo em: " + tpf.passfirefox + "\n" );
+  } else {
+    Gtk::MessageDialog empty( "Error export", false, Gtk::MESSAGE_ERROR );
+    empty.run();
+
+    m_entry_1.set_text( "" );
+    m_entry_2.set_text( "" );
+
+    return;
+  } 
+  
+}
 
 void PassFirefox::set_hierarchy() {
   // Window
@@ -97,6 +139,7 @@ void PassFirefox::draw_widgets() {
 
   // Entry 1
   m_entry_1.set_visible( true );
+  m_entry_1.set_visibility( false );
   m_entry_1.set_can_focus( true );
   m_entry_1.set_placeholder_text("Insert your passowrd");
   m_entry_1.set_input_purpose( Gtk::INPUT_PURPOSE_PASSWORD );
@@ -104,6 +147,7 @@ void PassFirefox::draw_widgets() {
 
   // Entry 2
   m_entry_2.set_visible( true );
+  m_entry_2.set_visibility( false );
   m_entry_2.set_can_focus( true );
   m_entry_2.set_placeholder_text("Repeat your passowrd");
   m_entry_2.set_input_purpose( Gtk::INPUT_PURPOSE_PASSWORD );
@@ -120,7 +164,7 @@ void PassFirefox::draw_widgets() {
   m_button_1.set_can_focus( true );
   m_button_1.set_focus_on_click( true );
   m_button_1.set_border_width( 5 );
-  // will receive a signal
+  m_button_1.signal_clicked().connect( sigc::mem_fun( *this, &PassFirefox::on_button_exporter ) );
   
   // Frame 2
   m_frame_2.set_size_request( 100, 80 );
@@ -147,6 +191,7 @@ void PassFirefox::draw_widgets() {
 
   // Entry 3
   m_entry_3.set_visible( true );
+  m_entry_3.set_visibility( false );
   m_entry_3.set_can_focus( true );
   m_entry_3.set_placeholder_text("Enter the file password");
   m_entry_3.set_input_purpose( Gtk::INPUT_PURPOSE_PASSWORD );
